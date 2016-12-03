@@ -34,12 +34,14 @@ public class MainActivity extends Activity implements TakePictureSurfaceView.Tak
                 takePictureSurfaceView.doTakePictureAction(filePath);
             }
         });
-
+        Log.i(TAG, "onCreate: ");
     }
+    
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.i(TAG, "onResume: ");
         //重新初始化
         takePictureSurfaceView.init(this);
     }
@@ -47,7 +49,15 @@ public class MainActivity extends Activity implements TakePictureSurfaceView.Tak
     @Override
     protected void onPause() {
         super.onPause();
+        Log.i(TAG, "onPause: ");
         takePictureSurfaceView.stopPreview();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy: ");
     }
 
     /***
