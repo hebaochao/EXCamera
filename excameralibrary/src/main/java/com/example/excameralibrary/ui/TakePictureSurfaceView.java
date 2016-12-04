@@ -233,6 +233,7 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
     }
 
     public void setMyCallBack(TakePictureSurfaceViewCallBack myCallBack) {
+
         this.myCallBack = myCallBack;
     }
 

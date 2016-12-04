@@ -260,6 +260,7 @@ public class CameraMgt {
             return;
         }
         Log.i(TAG, "pointFocus: parameters.getSupportedFocusModes()"+parameters.getSupportedFocusModes().toString());
+
         if (parameters.getMaxNumMeteringAreas() > 0) {
             List<Camera.Area> areas = new ArrayList<Camera.Area>();
             Rect area1 = new Rect(x - 100, x - 100, x + 100, x + 100);
@@ -270,7 +271,11 @@ public class CameraMgt {
             Log.i(TAG, "pointFocus: 对焦完毕");
         }
         camera.cancelAutoFocus();
-        setCameraParameterFocus();
+        if(CamParaUtil.getInstance().isSupportedListHasMode(parameters.getSupportedFocusModes(),Camera.Parameters.FOCUS_MODE_AUTO)){
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            camera.autoFocus(mAutoFocusCallback);
+            return;
+        }
         camera.setParameters(parameters);
         camera.autoFocus(mAutoFocusCallback);
     }
