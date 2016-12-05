@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.excameralibrary.tools.SDCardUtils;
@@ -17,7 +18,11 @@ import java.util.Date;
 public class MainActivity extends Activity implements TakePictureSurfaceView.TakePictureSurfaceViewCallBack{
 
      private  TakePictureSurfaceView   takePictureSurfaceView;
+
+    private SeekBar  seekBar;
+
     private  final  static  String TAG = "MainActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +40,32 @@ public class MainActivity extends Activity implements TakePictureSurfaceView.Tak
             }
         });
         Log.i(TAG, "onCreate: ");
+
+
+        seekBar = (SeekBar) findViewById(R.id.seekBar2);
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean flag) {
+
+                if(flag){  //只在手动滑动进度才调用缩放方法
+                    //缩放
+                    takePictureSurfaceView.setCameraZoom(progress);
+//                    Log.i(TAG, "onProgressChanged: b"+b);
+                }
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
     
 
@@ -72,6 +103,18 @@ public class MainActivity extends Activity implements TakePictureSurfaceView.Tak
         Toast.makeText(this,"TakePictureSuccessResult: saveImageFilePath"+saveImageFilePath,Toast.LENGTH_SHORT).show();
     }
 
+    /***
+     * 手势触碰改变缩放值的回调
+     * @param zoom
+     */
+    @Override
+    public void TakePictureCameraZoomValueChange(int zoom) {
+           seekBar.setProgress(zoom);
+    }
 
-
+    @Override
+    public void startedPreview() {
+        //设置最范围
+        seekBar.setMax(takePictureSurfaceView.getMaxScaleRange());
+    }
 }

@@ -3,6 +3,7 @@ package com.example.excameralibrary.ui;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.graphics.Rect;
@@ -15,10 +16,12 @@ import android.util.AttributeSet;
 import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.excameralibrary.models.Size;
 import com.example.excameralibrary.tools.CameraMgt;
@@ -46,8 +49,20 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
          * @param bitmap
          */
         public  void TakePictureSuccessResult(String saveImageFilePath,Bitmap bitmap);
+
+        /***
+         * 手势触发缩放操作时的回调
+         * @param zoom
+         */
+        public  void TakePictureCameraZoomValueChange(int zoom);
+
+        /***
+         * 已经开始预览回调
+         */
+        public  void startedPreview();
     }
 
+    private  final  static  String TAG = "TakePictureSurfaceView";
 
     /***
      * SurfaceView 管理者
@@ -76,7 +91,10 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
      * previewSize
      */
     private Size  previewSize  ;
-
+    /***
+     * 缩放对象
+     */
+    private ScaleGestureDetector  myScaleGestureDetector;
 
     public TakePictureSurfaceView(Context context) {
 
@@ -108,7 +126,8 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
         surfaceHolder.addCallback(this);
           //默认全屏的比例预览
         cpreviewRate = DisplayUtil.getScreenRate(context);
-        this.setOnTouchListener(this);
+
+
     }
 
 
@@ -163,8 +182,6 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
         }
     }
 
-
-
     //实现CameraMgt.CameraMgtCallBack
 
     /***
@@ -178,6 +195,9 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
             public void run() {
                 if(cameraMgt != null){
                     startPreview();
+                    if(myCallBack != null){
+                        myCallBack.startedPreview();
+                    }
                 }
             }
         });
@@ -192,6 +212,9 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
         Point  point =  DisplayUtil.getScreenMetrics(context);
         previewSize = new Size( point.x,  point.y);
         cameraMgt.startPreview(surfaceHolder,cpreviewRate,previewSize);
+        this.setOnTouchListener(this);
+        //创建缩放对象  并添加缩放监听回调方法
+        myScaleGestureDetector = new ScaleGestureDetector(context,new MyScaleGestureListener());
     }
 
     /***
@@ -243,18 +266,117 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
 
 
 
-
     @Override
     public boolean onTouch(View view, MotionEvent event) {
+
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN: //单击 处理  对焦
                 cameraMgt.pointFocus((int)event.getX(),(int)event.getY(),previewSize.width,previewSize.height);
                 break;
         }
-        return false;
+        return myScaleGestureDetector.onTouchEvent(event);
     }
 
 
+
+    /***
+     * 当前缩放等级 index
+     */
+    private  int scaleRange = 0;
+    /***
+     * 缩放最大值
+     */
+    private  int maxScaleRange = 0;
+
+    /***
+     *
+     * 缩放监听处理回调
+     */
+
+  public   class MyScaleGestureListener  implements ScaleGestureDetector.OnScaleGestureListener{
+        // 1.0->变大
+        //1.0->0
+
+        /***
+         * 上一个变量因子
+         */
+        private  float startScaleFactor = 1;
+
+      @Override
+        public void onScaleEnd(ScaleGestureDetector scaleGestureDetector) {
+          //计算缩放因子差值
+          int factor = (int)((scaleGestureDetector.getScaleFactor() - startScaleFactor)* 10.0);
+          //追加当前缩放等级
+          int tempZoom = scaleRange + factor;
+//          Log.i(TAG, "onScale: 临时目标缩放值tempZoom"+tempZoom );
+//          //下标越界 处理
+//              if(tempZoom >= getMaxScaleRange()){
+//                  tempZoom =  getMaxScaleRange();
+//              }
+//              if(tempZoom <= -getMaxScaleRange()) {
+//                  tempZoom = -getMaxScaleRange();
+//              }
+//          //设置缩放值
+//          cameraMgt.setZoom(tempZoom);
+//          scaleRange = tempZoom;
+//          Log.i(TAG, "onScale: 执行缩放操作"+tempZoom);
+
+          setCameraZoom(tempZoom);
+
+        }
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            System.out.println(detector.getScaleFactor());
+//            Log.i(TAG, "onScale: "+detector.getScaleFactor());
+//             //设置缩放因子的变化范围不能大于2
+            if(detector.getScaleFactor() >2){
+//                Log.i(TAG, "onScale: 设置缩放因子的变化范围不能大于2");
+                return  true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector scaleGestureDetector) {
+
+            //设置初始值
+            startScaleFactor = scaleGestureDetector.getScaleFactor();
+            return true;
+        }
+    }
+
+
+    /***
+     * 设置缩放值
+     * @param tempZoom
+     */
+    public void setCameraZoom(int  tempZoom){
+        //下标越界 处理
+        if(tempZoom >= getMaxScaleRange()){
+            tempZoom =  getMaxScaleRange();
+        }
+        if(tempZoom <= -getMaxScaleRange()) {
+            tempZoom = -getMaxScaleRange();
+        }
+        //设置缩放值
+        cameraMgt.setZoom(tempZoom);
+        scaleRange = tempZoom;
+        if(myCallBack != null){
+            myCallBack.TakePictureCameraZoomValueChange(tempZoom);
+        }
+    }
+
+    /***
+     * 获取最大缩放值
+     * @return
+     */
+    public int getMaxScaleRange() {
+        if(cameraMgt != null && cameraMgt.parameters != null){
+            maxScaleRange = cameraMgt.parameters.getMaxZoom();
+        }
+        return maxScaleRange;
+    }
 
 
 }

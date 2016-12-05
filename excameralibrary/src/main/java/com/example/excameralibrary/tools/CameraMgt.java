@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -357,6 +358,46 @@ public class CameraMgt {
 
     }
 
+    /***
+     * 是否支持缩放
+     */
+    private  boolean mIsSupportZoom;
+    /***
+     * 是否支持缩放变焦
+     * @return
+     */
+    public boolean isSupportZoom()
+    {
+        boolean isSuppport = camera.getParameters().isSmoothZoomSupported();
+
+        Log.i(TAG, "setZoom: this.isSupportZoom()"+isSuppport);
+        return isSuppport;
+    }
+
+
+    /***
+     * 预览画面缩放
+     * @param zoomRange
+     */
+    public void setZoom(int zoomRange)
+    {
+        if (this.isSupportZoom())
+        {
+            Log.i(TAG, "setZoom: parameters.getMaxZoom())"+parameters.getMaxZoom());
+            if(zoomRange>parameters.getMaxZoom() || zoomRange < 0){
+                return;
+            }
+            //设置缩放等级
+            //此方法设置缩放等级无效
+//          camera.setParameters(parameters);
+//          parameters.setZoom(zoomRange);
+            camera.startSmoothZoom(zoomRange);
+        }
+    }
+
+
 
 
 }
+
+
