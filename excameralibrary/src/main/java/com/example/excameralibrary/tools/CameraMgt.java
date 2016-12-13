@@ -81,6 +81,8 @@ public class CameraMgt {
 
 
 
+
+
     /***
      * 打开camera
      */
@@ -181,10 +183,13 @@ public class CameraMgt {
     public void stopPreview(){
         if(null != camera)
         {
+            cameraMgt = null;
+            myCallBack = null;
             camera.setPreviewCallback(null);
             camera.stopPreview();
             isPreviewing = false;
             cpreviewRate = -1f;
+            camera.stopPreview();
             camera.release();
             camera = null;
         }
