@@ -94,12 +94,10 @@ public class MainActivity extends Activity implements TakePictureSurfaceView.Tak
     /***
      * 拍照结果回调
      * @param saveImageFilePath
-     * @param bitmap
      */
     @Override
-    public void TakePictureSuccessResult(String saveImageFilePath, Bitmap bitmap) {
+    public void TakePictureSuccessResult(String saveImageFilePath) {
         Log.i(TAG, "TakePictureSuccessResult: saveImageFilePath"+saveImageFilePath );
-        Log.i(TAG, "TakePictureSuccessResult: bitmap"+bitmap.getByteCount() );
         Toast.makeText(this,"TakePictureSuccessResult: saveImageFilePath"+saveImageFilePath,Toast.LENGTH_SHORT).show();
     }
 

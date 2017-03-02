@@ -46,9 +46,8 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
         /***
          * 拍照完成回调接口
          * @param saveImageFilePath
-         * @param bitmap
          */
-        public  void TakePictureSuccessResult(String saveImageFilePath,Bitmap bitmap);
+        public  void TakePictureSuccessResult(String saveImageFilePath);
 
         /***
          * 手势触发缩放操作时的回调
@@ -126,7 +125,6 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
         surfaceHolder.addCallback(this);
           //默认全屏的比例预览
         cpreviewRate = DisplayUtil.getScreenRate(context);
-
 
     }
 
@@ -219,18 +217,19 @@ public class TakePictureSurfaceView extends SurfaceView  implements SurfaceHolde
 
     /***
      * 拍照结果回调
-     * @param bitmap
+     * @param data
      */
     @Override
-    public void cameratakePicture(Bitmap bitmap) {
+    public void cameratakePicture(byte[] data) {
         //保存图片
         if(this.saveImageFilePath != null && !this.saveImageFilePath.equals("")){
             //保存图片至指定的路径上
-            ImageUtil.getImageUtil().saveImageToFile(bitmap,saveImageFilePath);
+//            ImageUtil.getImageUtil().saveImageToFile(bitmap,saveImageFilePath);
+            ImageUtil.getImageUtil().saveImageToFile(data,saveImageFilePath);
         }
         //执行回调
         if(myCallBack != null){
-            myCallBack.TakePictureSuccessResult(saveImageFilePath,bitmap);
+            myCallBack.TakePictureSuccessResult(saveImageFilePath);
         }
 
     }

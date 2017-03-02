@@ -33,9 +33,9 @@ public class CameraMgt {
 
         /***
          * 拍照完毕 回调方法
-         * @param bitmap
+         * @param imageData
          */
-        public  void cameratakePicture(Bitmap bitmap);
+        public  void cameratakePicture(byte[] imageData);
 
         /***
          * 回调camera 适配的最适合预览画面尺寸
@@ -95,6 +95,10 @@ public class CameraMgt {
               myCallBack.cameraOpened();
           }
      }
+
+
+
+
 
     /****
      * 开始预览画面
@@ -181,6 +185,7 @@ public class CameraMgt {
      * 停止预览
      */
     public void stopPreview(){
+
         if(null != camera)
         {
             cameraMgt = null;
@@ -228,24 +233,28 @@ public class CameraMgt {
             // TODO Auto-generated method stub
 
             Log.i(TAG, "myJpegCallback:onPictureTaken...");
-
-            Bitmap b = null;
+//
+//            Bitmap b = null;
             if(null != data){
-                b = BitmapFactory.decodeByteArray(data, 0, data.length);//data是字节数据，将其解析成位图
+//                b = BitmapFactory.decodeByteArray(data, 0, data.length);//data是字节数据，将其解析成位图
                 camera.stopPreview();
                 isPreviewing = false;
-            }
-            //保存图片到sdcard
-            if(null != b)
-            {
-                //设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
-                //图片竟然不能旋转了，故这里要旋转下
-                Bitmap rotaBitmap = ImageUtil.getImageUtil().getRotateBitmap(b, 90.0f);
                 //回调处理
                 if(myCallBack != null){
-                    myCallBack.cameratakePicture(rotaBitmap);
+                    myCallBack.cameratakePicture(data);
                 }
             }
+            //保存图片到sdcard
+//            if(null != b)
+//            {
+//                //设置FOCUS_MODE_CONTINUOUS_VIDEO)之后，myParam.set("rotation", 90)失效。
+//                //图片竟然不能旋转了，故这里要旋转下
+////                Bitmap rotaBitmap = ImageUtil.getImageUtil().getRotateBitmap(b, 90.0f);
+//                //回调处理
+//                if(myCallBack != null){
+//                    myCallBack.cameratakePicture(b);
+//                }
+//            }
             //再次进入预览
             camera.startPreview();
             isPreviewing = true;

@@ -86,6 +86,7 @@ public class ImageUtil {
     public Bitmap getBitmapfromFileOption(int displayWidth, int displayHeight, File file){
         Bitmap resultBitmap = null;
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize =2;
         //设置读取图片的参数 为只读取图片大小 而不解码图片
         options.inJustDecodeBounds = true;
         //解码文件   options 保存着图片文件的相关信息
@@ -177,7 +178,7 @@ public class ImageUtil {
         try {
             //保存至本地
             outputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
             outputStream.close();
         } catch (Exception e){
             System.out.print(e.toString());
@@ -199,7 +200,7 @@ public class ImageUtil {
         try {
             //保存至本地
             outputStream = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream);
             outputStream.close();
         } catch (Exception e){
             System.out.print(e.toString());
@@ -236,7 +237,7 @@ public class ImageUtil {
         newOpts.inPurgeable = true;
         newOpts.inInputShareable = true;
         // Do not compress
-        newOpts.inSampleSize = 1;
+        newOpts.inSampleSize = 2;
         newOpts.inPreferredConfig = Bitmap.Config.RGB_565;
         return BitmapFactory.decodeFile(imgPath, newOpts);
     }
@@ -250,7 +251,7 @@ public class ImageUtil {
      */
     public void storeImage(Bitmap bitmap, String outPath) throws FileNotFoundException {
         FileOutputStream os = new FileOutputStream(outPath);
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, os);
     }
 
     /**
